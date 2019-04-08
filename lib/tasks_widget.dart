@@ -11,7 +11,19 @@ class _TasksListState extends State<TasksList> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text("Tasks"),
+      child: Column(
+        children: <Widget>[
+          Text("Tasks"),
+          FlatButton(
+            child: Text("Add new task"),
+            onPressed: () => {
+
+            },
+            shape: Border.all(color: Colors.black),
+          )
+        ],
+        mainAxisAlignment: MainAxisAlignment.center,
+      ),
     );
   }
 

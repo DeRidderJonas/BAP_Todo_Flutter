@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'tasks_widget.dart';
 import 'alarm_widget.dart';
+import 'task_detail_widget.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -13,7 +14,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     TasksList(),
-    Alarm()
+    Alarm(),
+    TaskDetail()
   ];
 
   @override
@@ -30,7 +32,9 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
               icon: new Icon(Icons.list), title: new Text("Tasks")),
           BottomNavigationBarItem(
-              icon: new Icon(Icons.alarm), title: new Text("Alarm"))
+              icon: new Icon(Icons.alarm), title: new Text("Alarm")),
+          BottomNavigationBarItem(
+              icon: new Icon(Icons.insert_comment), title: new Text("Task Detail"))
         ],
       ),
     );
