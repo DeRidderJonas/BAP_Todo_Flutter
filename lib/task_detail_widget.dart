@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'Task.dart';
+import 'database_helpers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskDetail extends StatefulWidget {
   TaskDetail({Key key}) : super(key: key);
@@ -9,50 +10,79 @@ class TaskDetail extends StatefulWidget {
 }
 
 class _TaskDetailState extends State<TaskDetail> {
-
-  Task task = new Task(-1, "placeholder", false);
+  Task task = new Task();
   final titleController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    titleController.text = task.title;
-
-    return Center(
-      child: Column(
-        children: <Widget>[
-          Text("Title"),
-          TextField(
-            controller: titleController,
-          ),
-          Row(
-            children: <Widget>[
-              Text("Done"),
-              Checkbox(
-                value: task.done,
-                onChanged: (bool newValue) {
-                  setState(() {
-                   task.done = newValue;
-                  });
-                },
-              )
-            ],
-          ),
-          FlatButton(
-            child: Text("Save"),
-            onPressed: () => {
-
-            },
-            shape: Border.all(color: Colors.black),
-          )
-        ],
-      )
-    );
+  void initState(){
+    readCurrentTask().then((result) {
+      setState(() {
+        task.id = result.id;
+        task.title = result.title;
+        task.done = result.done;
+        titleController.text = task.title;
+      });
+    });
+    super.initState();
   }
 
   @override
-  void dispose(){
+  Widget build(BuildContext context) {
+    print('title: ${task.title}, done: ${task.done}');
+
+    return Center(
+        child: Column(
+      children: <Widget>[
+        Text("Title"),
+        TextField(
+          controller: titleController,
+        ),
+        Row(
+          children: <Widget>[
+            Text("Done"),
+            Checkbox(
+              value: task.done,
+              onChanged: (bool newValue) {
+                setState(() {
+                  task.done = newValue;
+                });
+              },
+            )
+          ],
+        ),
+        RaisedButton(
+          child: Text("Save"),
+          onPressed: updateCurrentTask,
+          shape: Border.all(color: Colors.black),
+        )
+      ],
+    ));
+  }
+
+  @override
+  void dispose() {
     titleController.dispose();
     super.dispose();
   }
 
+  readCurrentTask() async {
+    final prefs = await SharedPreferences.getInstance();
+    int id = prefs.getInt("currentTaskId") ?? -1;
+    DatabaseHelper helper = DatabaseHelper.instance;
+    Task t = await helper.getById(id);
+    if (t == null) {
+      Task empty = new Task();
+      empty.title = "";
+      empty.done = false;
+      return empty;
+    } else {
+      return t;
+    }
+  }
+
+  updateCurrentTask() async {
+    task.title = titleController.text;
+    DatabaseHelper helper = DatabaseHelper.instance;
+    await helper.update(task);
+  }
 }
