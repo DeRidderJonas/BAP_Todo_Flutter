@@ -7,27 +7,37 @@ final String tableTasks = "tasks";
 final String columnId = "id";
 final String columnTitle = "title";
 final String columnDone = "done";
+final String columnDeadline = "deadline";
+final String columnExtra = "extra";
 
 class Task {
   int id;
   String title;
   bool done;
+  String deadline;
+  String extra;
 
   Task(){
     title = "";
     done = false;
+    deadline = "";
+    extra = "";
   }
 
   Task.fromMap(Map<String, dynamic> map) {
     id = map[columnId];
     title = map[columnTitle];
     done = map[columnDone] == 1;
+    deadline = map[columnDeadline];
+    extra = map[columnExtra];
   }
 
   Map<String, dynamic> toMap(){
     var map = <String, dynamic>{
       columnTitle: title,
-      columnDone: done
+      columnDone: done,
+      columnDeadline: deadline,
+      columnExtra: extra
     };
     if(id != null && id != -1) {
       map[columnId] = id;
@@ -38,7 +48,7 @@ class Task {
 
 class DatabaseHelper {
   static final _databaseName = "tasks.db";
-  static final _databaseVersion = 1;
+  static final _databaseVersion = 3;
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -53,6 +63,7 @@ class DatabaseHelper {
   _initDatabase() async{
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, _databaseName);
+    Sqflite.devSetDebugModeOn(true);
     return await openDatabase(path,
       version: _databaseVersion,
       onCreate: (Database db, int version) async {
@@ -60,7 +71,9 @@ class DatabaseHelper {
           create table $tableTasks(
             $columnId integer primary key,
             $columnTitle text,
-            $columnDone integer
+            $columnDone integer,
+            $columnDeadline text,
+            $columnExtra text
           )
         ''');
       }
@@ -69,6 +82,7 @@ class DatabaseHelper {
 
   Future<int> insert(Task task) async{
     Database db = await database;
+    //print(await db.query("sqlite_master"));
     int id = await db.insert(tableTasks, task.toMap());
     return id;
   }
@@ -76,7 +90,7 @@ class DatabaseHelper {
   Future<Task> getById(int id) async {
     Database db = await database;
     List<Map> maps = await db.query(tableTasks,
-      columns: [columnId, columnTitle, columnDone],
+      columns: [columnId, columnTitle, columnDone, columnDeadline, columnExtra],
       where: '$columnId = ?',
       whereArgs: [id],
     );
