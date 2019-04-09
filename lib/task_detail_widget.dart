@@ -14,12 +14,14 @@ class _TaskDetailState extends State<TaskDetail> {
   final titleController = TextEditingController();
 
   @override
-  void initState(){
+  void initState() {
     readCurrentTask().then((result) {
       setState(() {
         task.id = result.id;
         task.title = result.title;
         task.done = result.done;
+        task.deadline = result.deadline;
+        task.extra = result.extra;
         titleController.text = task.title;
       });
     });
@@ -28,8 +30,6 @@ class _TaskDetailState extends State<TaskDetail> {
 
   @override
   Widget build(BuildContext context) {
-    print('title: ${task.title}, done: ${task.done}');
-
     return Center(
         child: Column(
       children: <Widget>[
@@ -50,11 +50,23 @@ class _TaskDetailState extends State<TaskDetail> {
             )
           ],
         ),
+        Row(
+          children: <Widget>[
+            Text("Deadline "),
+            Text(task.deadline),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Text("Extra "),
+            Text(task.extra),
+          ],
+        ),
         RaisedButton(
           child: Text("Save"),
           onPressed: updateCurrentTask,
           shape: Border.all(color: Colors.black),
-        )
+        ),
       ],
     ));
   }
