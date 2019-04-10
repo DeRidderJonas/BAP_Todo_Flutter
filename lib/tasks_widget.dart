@@ -33,7 +33,7 @@ class _TasksListState extends State<TasksList> {
     newTask.title = "something";
     newTask.done = false;
     newTask.deadline = "none";
-    newTask.extra = "none";
+    newTask.extra = "None";
     DatabaseHelper helper = DatabaseHelper.instance;
     int id = await helper.insert(newTask);
     final prefs = await SharedPreferences.getInstance();
