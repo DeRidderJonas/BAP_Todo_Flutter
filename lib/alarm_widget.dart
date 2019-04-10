@@ -10,7 +10,7 @@ class Alarm extends StatefulWidget {
 
 class _AlarmState extends State<Alarm> {
   String alarm = "";
-  bool enabled;
+  bool enabled = false;
 
   @override
   void initState() {

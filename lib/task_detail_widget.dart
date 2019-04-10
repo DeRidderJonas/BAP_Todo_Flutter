@@ -13,12 +13,22 @@ class TaskDetail extends StatefulWidget {
 class _TaskDetailState extends State<TaskDetail> {
   Task task = new Task();
   final titleController = TextEditingController();
-  final dropdownItems = <String>['None', 'Not important'].map((String value) {
-    return new DropdownMenuItem<String>(
-      value: value,
-      child: Text(value),
-    );
-  }).toList();
+  // final dropdownItems = <String>['None', 'Not important'].map((String value) {
+  //   return new DropdownMenuItem<String>(
+  //     value: value,
+  //     child: Text(value),
+  //   );
+  // }).toList();
+  final List<DropdownMenuItem<String>> dropdownItems = [
+    DropdownMenuItem<String>(
+      value: "None",
+      child: Text("None"),
+    ),
+    DropdownMenuItem<String>(
+      value: "Not important",
+      child: Text("Not important"),
+    )
+  ];
 
   @override
   void initState() {

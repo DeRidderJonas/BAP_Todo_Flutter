@@ -21,7 +21,7 @@ class Task {
     title = "";
     done = false;
     deadline = "";
-    extra = "";
+    extra = "None";
   }
 
   Task.fromMap(Map<String, dynamic> map) {
