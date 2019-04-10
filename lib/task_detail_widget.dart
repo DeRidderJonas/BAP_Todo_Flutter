@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class TaskDetail extends StatefulWidget {
   TaskDetail({Key key}) : super(key: key);
@@ -53,7 +54,12 @@ class _TaskDetailState extends State<TaskDetail> {
         Row(
           children: <Widget>[
             Text("Deadline "),
-            Text(task.deadline),
+            FlatButton.icon(
+              icon: Icon(Icons.calendar_today),
+              label: Text(task.deadline),
+              onPressed: selectDate,
+              shape: Border.all(color: Colors.black),
+            )
           ],
         ),
         Row(
@@ -75,6 +81,19 @@ class _TaskDetailState extends State<TaskDetail> {
   void dispose() {
     titleController.dispose();
     super.dispose();
+  }
+
+  selectDate() async {
+    DateTime date = await showDatePicker(
+      context: context,
+      initialDate: new DateTime.now(),
+      firstDate: new DateTime(2016),
+      lastDate: new DateTime(2020)
+    );
+    String dateString = DateFormat('dd/MM/yyyy').format(date);
+    setState(() {
+      task.deadline = dateString;
+    });
   }
 
   readCurrentTask() async {
