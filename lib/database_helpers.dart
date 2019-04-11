@@ -107,4 +107,13 @@ class DatabaseHelper {
       whereArgs: [task.id]
     );
   }
+
+  Future<List<Task>> getAll() async{
+    Database db = await database;
+    List<Map> maps = await db.query(tableTasks,
+    columns: [columnId, columnTitle, columnDone, columnDeadline, columnExtra]);
+    List<Task> tasks = [];
+    maps.forEach((m) => tasks.insert(0, Task.fromMap(m)));
+    return tasks;
+  }
 }

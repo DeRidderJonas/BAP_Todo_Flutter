@@ -15,7 +15,7 @@ class _TaskDetailState extends State<TaskDetail> {
   final titleController = TextEditingController();
   final dropdownItems = <String>['None', 'Not important'].map((String value) {
     return new DropdownMenuItem<String>(
-     value: value,
+      value: value,
       child: Text(value),
     );
   }).toList();
@@ -87,11 +87,15 @@ class _TaskDetailState extends State<TaskDetail> {
             Text(task.extra),
           ],
         ),
-        RaisedButton(
-          child: Text("Save"),
-          onPressed: updateCurrentTask,
-          shape: Border.all(color: Colors.black),
-        ),
+        Row(
+          children: <Widget>[
+            RaisedButton(
+              child: Text("Save"),
+              onPressed: updateCurrentTask,
+              shape: Border.all(color: Colors.black),
+            ),
+          ],
+        )
       ],
     ));
   }
