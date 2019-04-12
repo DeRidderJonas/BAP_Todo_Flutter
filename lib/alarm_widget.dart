@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:location/location.dart';
 
 class Alarm extends StatefulWidget {
   Alarm({Key key}) : super(key: key);
@@ -11,6 +12,7 @@ class Alarm extends StatefulWidget {
 class _AlarmState extends State<Alarm> {
   String alarm = "";
   bool enabled = false;
+  LocationData currentLocation;
 
   @override
   void initState() {
@@ -48,7 +50,25 @@ class _AlarmState extends State<Alarm> {
                 },
               )
             ],
-          )
+          ),
+          RaisedButton(
+            child: Text("Get location"),
+            onPressed: () async{
+              var location = new Location();
+              try {
+                LocationData l = await location.getLocation();
+                setState(() {
+                  currentLocation = l;
+                });
+              } catch (e){
+                if(e.code == 'PERMISSION_DENIED'){
+                  print("permission denied");
+                }
+                currentLocation = null;
+              }
+            },
+          ),
+          Text(currentLocation == null ? '' : 'lat: ${currentLocation.latitude}, long: ${currentLocation.longitude}')
         ],
       ),
     );
