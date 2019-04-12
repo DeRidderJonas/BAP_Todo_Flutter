@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutter/services.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class TaskDetail extends StatefulWidget {
   TaskDetail({Key key}) : super(key: key);
@@ -14,12 +15,12 @@ class TaskDetail extends StatefulWidget {
 class _TaskDetailState extends State<TaskDetail> {
   Task task = new Task();
   final titleController = TextEditingController();
-  final dropdownItems = <String>['None', 'Not important'].map((String value) {
-    return new DropdownMenuItem<String>(
-      value: value,
-      child: Text(value),
-    );
-  }).toList();
+  final dropdownItems = <String>['None', 'Not important'];
+
+  //QR scanner
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  var qrText = "";
+  var showQRscanner = false;
 
   @override
   void initState() {
@@ -38,6 +39,16 @@ class _TaskDetailState extends State<TaskDetail> {
 
   @override
   Widget build(BuildContext context) {
+    //print(dropdownItems);
+    Widget qrPlaceholder;
+    if(showQRscanner){
+      qrPlaceholder = QRView(
+            key: qrKey,
+            onQRViewCreated: _onQRViewCreated,
+          );
+    }else{
+      qrPlaceholder = Text("");
+    }
     return Center(
         child: Column(
       children: <Widget>[
@@ -75,13 +86,19 @@ class _TaskDetailState extends State<TaskDetail> {
             RaisedButton(
               child: Text("Scan QR"),
               onPressed: () async{
-                String code = await BarcodeScanner.scan();
-                print(code);
+                setState(() {
+                 showQRscanner = !showQRscanner;
+                });
               },
             ),
             DropdownButton<String>(
               value: task.extra,
-              items: dropdownItems,
+              items: dropdownItems.map((String value) {
+                return new DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
               onChanged: (String newValue) {
                 setState(() {
                   task.extra = newValue;
@@ -103,9 +120,34 @@ class _TaskDetailState extends State<TaskDetail> {
               shape: Border.all(color: Colors.black),
             ),
           ],
-        )
+        ),
+        Expanded(
+          child: qrPlaceholder,
+          flex: 4,
+        ),
       ],
     ));
+  }
+
+  _onQRViewCreated(QRViewController controller){
+    final channel = controller.channel;
+    controller.init(qrKey);
+    channel.setMethodCallHandler((MethodCall call) async {
+      switch (call.method) {
+        case "onRecognizeQR":
+          dynamic arguments = call.arguments;
+          String result = arguments.toString();
+          print(dropdownItems);
+          setState(() {
+            if(dropdownItems.indexOf(result) < 0) {
+              dropdownItems.add(arguments.toString());
+            }
+            task.extra = arguments.toString();
+            showQRscanner = false;
+          });
+          print(dropdownItems);
+      }
+    });
   }
 
   @override
