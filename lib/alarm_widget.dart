@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Alarm extends StatefulWidget {
   Alarm({Key key}) : super(key: key);
@@ -12,7 +14,7 @@ class Alarm extends StatefulWidget {
 class _AlarmState extends State<Alarm> {
   String alarm = "";
   bool enabled = false;
-  LocationData currentLocation;
+  String timeString = "";
 
   @override
   void initState() {
@@ -57,18 +59,18 @@ class _AlarmState extends State<Alarm> {
               var location = new Location();
               try {
                 LocationData l = await location.getLocation();
+                String url = "https://api.timezonedb.com/v2.1/get-time-zone?key=BNC3MFRJAMK4&format=json&fields=abbreviation,formatted&by=position&lat=${l.latitude}&lng=${l.longitude}";
+                final response = await http.get(url);
+                final jsonObject = jsonDecode(response.body);
                 setState(() {
-                  currentLocation = l;
+                  timeString = "Timezone: ${jsonObject["abbreviation"]}, time: ${jsonObject["formatted"]}";
                 });
               } catch (e){
-                if(e.code == 'PERMISSION_DENIED'){
-                  print("permission denied");
-                }
-                currentLocation = null;
+                print(e);
               }
             },
           ),
-          Text(currentLocation == null ? '' : 'lat: ${currentLocation.latitude}, long: ${currentLocation.longitude}')
+          Text(timeString)
         ],
       ),
     );
@@ -100,4 +102,5 @@ class _AlarmState extends State<Alarm> {
       alarm = timeString;
     });
   }
+
 }
