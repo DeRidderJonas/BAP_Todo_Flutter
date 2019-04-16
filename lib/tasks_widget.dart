@@ -68,7 +68,6 @@ class _TasksListState extends State<TasksList> {
     int id = await helper.insert(newTask);
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt("currentTaskId", id);
-    print('inserted row: $id');
   }
 
   loadData() async {

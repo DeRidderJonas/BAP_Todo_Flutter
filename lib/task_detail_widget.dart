@@ -39,7 +39,6 @@ class _TaskDetailState extends State<TaskDetail> {
 
   @override
   Widget build(BuildContext context) {
-    //print(dropdownItems);
     Widget qrPlaceholder;
     if(showQRscanner){
       qrPlaceholder = QRView(
@@ -137,7 +136,6 @@ class _TaskDetailState extends State<TaskDetail> {
         case "onRecognizeQR":
           dynamic arguments = call.arguments;
           String result = arguments.toString();
-          print(dropdownItems);
           setState(() {
             if(dropdownItems.indexOf(result) < 0) {
               dropdownItems.add(arguments.toString());
@@ -145,7 +143,6 @@ class _TaskDetailState extends State<TaskDetail> {
             task.extra = arguments.toString();
             showQRscanner = false;
           });
-          print(dropdownItems);
       }
     });
   }

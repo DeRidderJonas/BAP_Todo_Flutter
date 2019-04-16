@@ -82,7 +82,6 @@ class DatabaseHelper {
 
   Future<int> insert(Task task) async{
     Database db = await database;
-    //print(await db.query("sqlite_master"));
     int id = await db.insert(tableTasks, task.toMap());
     return id;
   }
