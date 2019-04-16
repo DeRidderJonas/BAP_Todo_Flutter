@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Alarm extends StatefulWidget {
   Alarm({Key key}) : super(key: key);
@@ -15,11 +16,20 @@ class _AlarmState extends State<Alarm> {
   String alarm = "";
   bool enabled = false;
   String timeString = "";
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      new FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
-    loadAlarm();
     super.initState();
+    var initializationSettingsAndroid =
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
+    // loadAlarm();
   }
 
   @override
@@ -49,23 +59,28 @@ class _AlarmState extends State<Alarm> {
                   setState(() {
                     enabled = newValue;
                   });
+                  if (enabled) {
+                    _showNotification();
+                  }
                 },
-              )
+              ),
             ],
           ),
           RaisedButton(
             child: Text("Get location"),
-            onPressed: () async{
+            onPressed: () async {
               var location = new Location();
               try {
                 LocationData l = await location.getLocation();
-                String url = "https://api.timezonedb.com/v2.1/get-time-zone?key=BNC3MFRJAMK4&format=json&fields=abbreviation,formatted&by=position&lat=${l.latitude}&lng=${l.longitude}";
+                String url =
+                    "https://api.timezonedb.com/v2.1/get-time-zone?key=BNC3MFRJAMK4&format=json&fields=abbreviation,formatted&by=position&lat=${l.latitude}&lng=${l.longitude}";
                 final response = await http.get(url);
                 final jsonObject = jsonDecode(response.body);
                 setState(() {
-                  timeString = "Timezone: ${jsonObject["abbreviation"]}, time: ${jsonObject["formatted"]}";
+                  timeString =
+                      "Timezone: ${jsonObject["abbreviation"]}, time: ${jsonObject["formatted"]}";
                 });
-              } catch (e){
+              } catch (e) {
                 print(e);
               }
             },
@@ -103,4 +118,21 @@ class _AlarmState extends State<Alarm> {
     });
   }
 
+  Future onSelectNotification(String payload) async {}
+
+  Future _showNotification() async {
+    var scheduledNotificationDateTime =
+        new DateTime.now().add(new Duration(seconds: 2));
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        'jonas.de.ridder.alarm', 'Alarm Channel', 'Flutter Todo Alarm');
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    NotificationDetails platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.schedule(
+        1,
+        'Alarm',
+        'Alarm going off',
+        scheduledNotificationDateTime,
+        platformChannelSpecifics);
+  }
 }
